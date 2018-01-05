@@ -25,13 +25,13 @@ metadata {
 
 	// UI tile definitions
 	tiles {
-		standardTile("button", "device.switch", width: 2, height: 2, canChangeIcon: true) {
+		standardTile("button", "device.switch", width: 3, height: 2, canChangeIcon: true) {
 			state "off", label: 'Off', action: "switch.on", icon: "st.shields.shields.arduino", backgroundColor: "#ffffff", nextState: "turningOn"
 			state "turningOn", label: 'turningOn', action: "switch.off", icon: "st.shields.shields.arduino", backgroundColor: "#00A0DC", nextState: "on"
 			state "on", label: 'On', action: "switch.off", icon: "st.shields.shields.arduino", backgroundColor: "#00A0DC", nextState: "turningOff"
 			state "turningOff", label: 'turningOff', action: "switch.on", icon: "st.shields.shields.arduino", backgroundColor: "#ffffff", nextState: "off"
 		}
-		standardTile ("refresh", "device.refresh", height: 2, width: 2, inactiveLabel: false, decoration: "flat") {
+		standardTile ("refresh", "device.refresh", height: 1, width: 1, inactiveLabel: false, decoration: "flat") {
 			state "default", label:"", action:"refresh.refresh", icon:"st.secondary.refresh"
 		}
 		main (["button"])
@@ -90,6 +90,25 @@ void sendlocalrequest(Map params) {
 	sendHubCommand(new physicalgraph.device.HubAction("""GET $params.path HTTP/1.1\r\nHOST: $host\r\n\r\n""",
     				physicalgraph.device.Protocol.LAN, "${host}",
                                 [callback: hubActionHandler]))
+}
+
+void hubActionHandler(physicalgraph.device.HubResponse hubResponse) {
+	def device = hubResponse.xml
+	def deviceId = device?.id?.text()
+	def state = device?.state?.text()
+
+	log.debug "hubActionHandler - deviceId : ${deviceId}"
+	log.debug "hubActionHandler - switch : ${state}"
+
+	if (deviceId != null) {
+		// Device wakes up every 1 hour, this interval allows us to miss one wakeup notification before marking offline
+		log.debug "Configured health checkInterval - 12 hours - hubActionHandler()"
+		sendEvent(name: "checkInterval", value: 12 * 60 * 60, displayed: false, data: [protocol: "LAN", hubHardwareId: device.hub.hardwareID])
+
+		if (state != null) {
+			sendEvent(name: "switch", value: state)
+		}
+	}
 }
 
 // handle commands
