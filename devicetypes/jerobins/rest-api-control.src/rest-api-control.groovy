@@ -16,6 +16,7 @@ metadata {
 		capability "Switch"
 		capability "Sensor"
 		capability "Health Check"
+
 		command "refresh"
 	}
 
@@ -87,6 +88,7 @@ void sendlocalrequest(Map params) {
 	def host = getHostAddress()
 	log.debug "Trying to send ${host} command ${params?.path}"
 
+	// send async and use callback
 	sendHubCommand(new physicalgraph.device.HubAction("""GET $params.path HTTP/1.1\r\nHOST: $host\r\n\r\n""",
     				physicalgraph.device.Protocol.LAN, "${host}",
                                 [callback: hubActionHandler]))
@@ -114,21 +116,21 @@ void hubActionHandler(physicalgraph.device.HubResponse hubResponse) {
 // handle commands
 void on() {    
 	def params = [ path: "/?on=1" ]
-   	sendlocalrequest(params)
 	// send to device, wait for response to send ST event
+   	sendlocalrequest(params)
 }
 
 void off() {
 	def params = [ path: "/?off=1" ]
-   	sendlocalrequest(params)
 	// send to device, wait for response to send ST event
+   	sendlocalrequest(params)
 }
 
 void refresh() {
 	log.debug "Executing 'refresh'"
 	def params = [ path: "/?refresh=1" ]
-   	sendlocalrequest(params)
    	// send to device, wait for response to send ST event
+   	sendlocalrequest(params)
 }
 
 private getIP() {
