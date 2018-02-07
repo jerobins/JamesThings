@@ -15,6 +15,7 @@ metadata {
 		capability "Actuator"
 		capability "Switch"
 		capability "Sensor"
+		capability "Refresh"
 		capability "Health Check"
 
 		command "refresh"
