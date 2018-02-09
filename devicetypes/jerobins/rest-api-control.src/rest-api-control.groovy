@@ -156,4 +156,3 @@ private updateDNI() {
 		device.deviceNetworkId = state.dni
 	}
 }
-}
