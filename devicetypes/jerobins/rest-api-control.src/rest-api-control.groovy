@@ -101,11 +101,11 @@ void hubActionHandler(physicalgraph.device.HubResponse hubResponse) {
 	def curstate = device?.state?.text()
 
 	// update the DNI so we can receive direct requests
-	log.debug "hubActionHandler - device : ${device}"
+	log.debug "hubActionHandler - resp : ${hubResponse.xml}"
 	updateDNI()
 
 	log.debug "hubActionHandler - deviceId : ${deviceId}"
-	log.debug "hubActionHandler - switch : ${state}"
+	log.debug "hubActionHandler - switch : ${curstate}"
 
 	if (deviceId != null) {
 		// Device wakes up every 1 hour, this interval allows us to miss one wakeup notification before marking offline
