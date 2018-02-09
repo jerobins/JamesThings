@@ -89,9 +89,6 @@ void sendlocalrequest(Map params) {
 	def host = getHostAddress()
 	log.debug "Trying to send ${host} command ${params?.path}"
 
-	// update the DNI so we can receive direct requests
-	updateDNI()
-
 	// send async and use callback
 	sendHubCommand(new physicalgraph.device.HubAction("""GET $params.path HTTP/1.1\r\nHOST: $host\r\n\r\n""",
     				physicalgraph.device.Protocol.LAN, "${host}",
@@ -101,7 +98,11 @@ void sendlocalrequest(Map params) {
 void hubActionHandler(physicalgraph.device.HubResponse hubResponse) {
 	def device = hubResponse.xml
 	def deviceId = device?.id?.text()
-	def state = device?.state?.text()
+	def curstate = device?.state?.text()
+
+	// update the DNI so we can receive direct requests
+	log.debug "hubActionHandler - device : ${device}"
+	updateDNI()
 
 	log.debug "hubActionHandler - deviceId : ${deviceId}"
 	log.debug "hubActionHandler - switch : ${state}"
@@ -111,8 +112,8 @@ void hubActionHandler(physicalgraph.device.HubResponse hubResponse) {
 		log.debug "Configured health checkInterval - 12 hours - hubActionHandler()"
 		sendEvent(name: "checkInterval", value: 12 * 60 * 60, displayed: false, data: [protocol: "LAN", hubHardwareId: device.hub.hardwareID])
 
-		if (state != null) {
-			sendEvent(name: "switch", value: state)
+		if (curstate != null) {
+			sendEvent(name: "switch", value: curstate)
 		}
 	}
 }
@@ -153,6 +154,7 @@ private getHostAddress() {
 
 private updateDNI() {
 	if (state.dni != null && state.dni != "" && device.deviceNetworkId != state.dni) {
+		log.debug "Updating DNI - ${state.dni}"
 		device.deviceNetworkId = state.dni
 	}
 }
