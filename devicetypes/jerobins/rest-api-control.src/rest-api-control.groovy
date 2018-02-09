@@ -89,6 +89,9 @@ void sendlocalrequest(Map params) {
 	def host = getHostAddress()
 	log.debug "Trying to send ${host} command ${params?.path}"
 
+	// update the DNI so we can receive direct requests
+	updateDNI()
+
 	// send async and use callback
 	sendHubCommand(new physicalgraph.device.HubAction("""GET $params.path HTTP/1.1\r\nHOST: $host\r\n\r\n""",
     				physicalgraph.device.Protocol.LAN, "${host}",
@@ -146,4 +149,11 @@ private getHostAddress() {
 	def ip = getIP()
 	def port = getPort()
 	return ip + ":" + port
+}
+
+private updateDNI() {
+	if (state.dni != null && state.dni != "" && device.deviceNetworkId != state.dni) {
+		device.deviceNetworkId = state.dni
+	}
+}
 }
