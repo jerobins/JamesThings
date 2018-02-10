@@ -98,22 +98,21 @@ void sendlocalrequest(Map params) {
 void hubActionHandler(physicalgraph.device.HubResponse hubResponse) {
 	def device = hubResponse.xml
 	def deviceId = device?.id?.text()
-	def curstate = device?.state?.text()
+	def state = device?.state?.text()
 
 	// update the DNI so we can receive direct requests
-	log.debug "hubActionHandler - resp : ${hubResponse.xml}"
-	updateDNI()
+	// updateDNI()
 
 	log.debug "hubActionHandler - deviceId : ${deviceId}"
-	log.debug "hubActionHandler - switch : ${curstate}"
+	log.debug "hubActionHandler - switch : ${state}"
 
 	if (deviceId != null) {
 		// Device wakes up every 1 hour, this interval allows us to miss one wakeup notification before marking offline
 		log.debug "Configured health checkInterval - 12 hours - hubActionHandler()"
 		sendEvent(name: "checkInterval", value: 12 * 60 * 60, displayed: false, data: [protocol: "LAN", hubHardwareId: device.hub.hardwareID])
 
-		if (curstate != null) {
-			sendEvent(name: "switch", value: curstate)
+		if (state != null) {
+			sendEvent(name: "switch", value: state)
 		}
 	}
 }
