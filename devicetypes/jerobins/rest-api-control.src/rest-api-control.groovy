@@ -100,9 +100,6 @@ void hubActionHandler(physicalgraph.device.HubResponse hubResponse) {
 	def deviceId = device?.id?.text()
 	def state = device?.state?.text()
 
-	// update the DNI so we can receive direct requests
-	// updateDNI()
-
 	log.debug "hubActionHandler - deviceId : ${deviceId}"
 	log.debug "hubActionHandler - switch : ${state}"
 
@@ -151,9 +148,3 @@ private getHostAddress() {
 	return ip + ":" + port
 }
 
-private updateDNI() {
-	if (state.dni != null && state.dni != "" && device.deviceNetworkId != state.dni) {
-		log.debug "Updating DNI - ${state.dni}"
-		device.deviceNetworkId = state.dni
-	}
-}
