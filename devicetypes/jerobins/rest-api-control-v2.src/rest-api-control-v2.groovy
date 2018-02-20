@@ -28,7 +28,7 @@ metadata {
 
 	// UI tile definitions
 	tiles {
-		multiAttributeTile (name:"rich-control", type: "lighting", width : 6, height: 4, canChangeIcon: true) {
+		multiAttributeTile (name:"rich-control", type: "lighting", width : 3, height: 2, canChangeIcon: true) {
 			tileAttribute ("device.switch", key: "PRIMARY_CONTROL") {
 				attributeState "on", label:'${name}', action:"switch.off", 
 				icon:"st.shields.shields.arduino", backgroundColor:"#00A0DC", nextState:"turningOff"
