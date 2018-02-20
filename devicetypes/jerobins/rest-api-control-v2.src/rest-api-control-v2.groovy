@@ -11,7 +11,7 @@
  *
  */
 metadata {
-	definition (name: "REST-API-Control-beta", namespace: "jerobins", author: "jerobins") {
+	definition (name: "REST-API-Control-v2", namespace: "jerobins", author: "jerobins") {
 		capability "Actuator"
 		capability "Switch"
 		capability "Switch Level"
