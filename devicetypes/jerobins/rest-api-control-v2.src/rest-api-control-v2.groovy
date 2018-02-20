@@ -11,9 +11,10 @@
  *
  */
 metadata {
-	definition (name: "REST-API-Control", namespace: "jerobins", author: "jerobins") {
+	definition (name: "REST-API-Control-beta", namespace: "jerobins", author: "jerobins") {
 		capability "Actuator"
 		capability "Switch"
+		capability "Switch Level"
 		capability "Sensor"
 		capability "Refresh"
 		capability "Health Check"
@@ -27,17 +28,27 @@ metadata {
 
 	// UI tile definitions
 	tiles {
-		standardTile("button", "device.switch", width: 3, height: 2, canChangeIcon: true) {
-			state "off", label: 'Off', action: "switch.on", icon: "st.shields.shields.arduino", backgroundColor: "#ffffff", nextState: "turningOn"
-			state "turningOn", label: 'turningOn', action: "switch.off", icon: "st.shields.shields.arduino", backgroundColor: "#00A0DC", nextState: "on"
-			state "on", label: 'On', action: "switch.off", icon: "st.shields.shields.arduino", backgroundColor: "#00A0DC", nextState: "turningOff"
-			state "turningOff", label: 'turningOff', action: "switch.on", icon: "st.shields.shields.arduino", backgroundColor: "#ffffff", nextState: "off"
+		multiAttributeTile (name:"rich-control", type: "lighting", width : 6, height: 4, canChangeIcon: true) {
+			tileAttribute ("device.switch", key: "PRIMARY_CONTROL") {
+				attributeState "on", label:'${name}', action:"switch.off", 
+				icon:"st.shields.shields.arduino", backgroundColor:"#00A0DC", nextState:"turningOff"
+				attributeState "off", label:'${name}', action:"switch.on", 
+				icon:"st.shields.shields.arduino", backgroundColor:"#ffffff", nextState:"turningOn"
+				attributeState "turningOn", label:'${name}', action:"switch.off", 
+				icon:"st.shields.shields.arduino", backgroundColor:"#00A0DC", nextState:"turningOff"
+				attributeState "turningOff", label:'${name}', action:"switch.on", 
+				icon:"st.shields.shields.arduino", backgroundColor:"#ffffff", nextState:"turningOn"
+			}
+			tileAttribute ("device.level", key: "SLIDER_CONTROL") {
+				attributeState "level", action:"switch level.setLevel", 
+				range:"(0..100)"
+			}
 		}
 		standardTile ("refresh", "device.refresh", height: 1, width: 1, inactiveLabel: false, decoration: "flat") {
 			state "default", label:"", action:"refresh.refresh", icon:"st.secondary.refresh"
 		}
-		main (["button"])
-		details(["button", "refresh"])
+		main (["rich-control"])
+		details(["rich-control", "refresh"])
 	}
     
     preferences {
@@ -99,9 +110,11 @@ void hubActionHandler(physicalgraph.device.HubResponse hubResponse) {
 	def device = hubResponse.xml
 	def deviceId = device?.id?.text()
 	def state = device?.state?.text()
+	def level = device?.level?.text()
 
 	log.debug "hubActionHandler - deviceId : ${deviceId}"
 	log.debug "hubActionHandler - switch : ${state}"
+	log.debug "hubActionHandler - level : ${level}"
 
 	if (deviceId != null) {
 		// Device wakes up every 1 hour, this interval allows us to miss one wakeup notification before marking offline
@@ -110,6 +123,10 @@ void hubActionHandler(physicalgraph.device.HubResponse hubResponse) {
 
 		if (state != null) {
 			sendEvent(name: "switch", value: state)
+		}
+
+		if (level != null) {
+			sendEvent(name: "level", value: level)
 		}
 	}
 }
@@ -126,6 +143,14 @@ void off() {
 	// send to device, wait for response to send ST event
    	sendlocalrequest(params)
 }
+
+void setLevel(level) {
+	log.debug "Executing 'setLevel'"
+	def params = [ path: "/?level=${level}" ]
+	sendlocalrequest(params)
+	// send to device, wait for response to send ST event
+}
+
 
 void refresh() {
 	log.debug "Executing 'refresh'"
