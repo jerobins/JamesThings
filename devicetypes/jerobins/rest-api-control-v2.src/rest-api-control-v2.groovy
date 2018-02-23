@@ -44,7 +44,7 @@ metadata {
 				range:"(0..100)"
 			}
 		}
-		standardTile ("refresh", "device.refresh", height: 1, width: 1, inactiveLabel: false, decoration: "flat") {
+		standardTile ("refresh", "device.refresh", height: 2, width: 2, inactiveLabel: false, decoration: "flat") {
 			state "default", label:"", action:"refresh.refresh", icon:"st.secondary.refresh"
 		}
 		main (["rich-control"])
